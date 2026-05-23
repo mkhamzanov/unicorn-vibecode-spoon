@@ -62,6 +62,27 @@ days.push({
 
 Лендинг подхватит сам: новый счетчик, новый промпт дня, новая карточка в таймлайне.
 
+## Roadmap
+
+- [x] Фундамент (v0.1) — Next.js, IgraSans, темная/светлая темы, unicorn-радуга, пустой лендинг.
+- [ ] Chat-bot — спека готова, см. [docs/CHATBOT_SPEC.md](docs/CHATBOT_SPEC.md). DeepSeek + rate-limit + Telegram CTA.
+- [ ] Авто-счетчик подписчиков (TikTok / IG Graph API).
+- [ ] Live-режим: показывать как Клод пишет код в realtime.
+
+## Env vars
+
+Скопируй `.env.example` → `.env.local` для локалки. На проде — Vercel Dashboard.
+
+## Claude Code
+
+Проектные пермишены — в [.claude/settings.json](.claude/settings.json) (allow для `npm`, `git`, `gh`, deepseek/github docs, дефолт `acceptEdits`).
+
+Хочешь полный YOLO локально — создай `.claude/settings.local.json` (gitignored):
+```json
+{ "defaultMode": "bypassPermissions" }
+```
+
 ## Лог
 
 - **v0.1** — фундамент: стили из kerege-analytics, IgraSans, темная тема, unicorn-радуга, пустой лендинг готов к первому дню.
+- **v0.2** — убраны эмодзи, добавлен SVG brand-mark, light/dark toggle, спека чат-бота.

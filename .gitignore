@@ -25,6 +25,10 @@ yarn-error.log*
 
 # env
 .env*
+!.env.example
+
+# claude code local-only settings (per-user, never commit)
+.claude/settings.local.json
 
 # vercel
 .vercel
