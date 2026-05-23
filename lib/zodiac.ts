@@ -61,3 +61,51 @@ export const ELEMENT_RU: Record<ZodiacElement, string> = {
   air: "воздух",
   water: "вода",
 };
+
+// ====== Совместимость знаков ======
+// Алгоритм: тригоны (огонь-огонь и т.д.) → 9, дополняющие пары → 8,
+// напряжённые (огонь+вода, земля+воздух) → 4, остальные → 6.
+// Затем — точечные «знаковые пары любви» бустят до 9-10.
+
+const ELEMENT_PAIR_SCORE: Record<string, number> = {
+  "fire-fire": 9, "fire-air": 9, "air-fire": 9, "air-air": 9,
+  "earth-earth": 9, "earth-water": 9, "water-earth": 9, "water-water": 9,
+  "fire-earth": 6, "earth-fire": 6, "fire-water": 4, "water-fire": 4,
+  "air-earth": 4, "earth-air": 4, "air-water": 6, "water-air": 6,
+};
+
+// Классические сильные пары (по Линде Гудман и пр.)
+const STRONG_PAIRS = new Set([
+  "aries-leo", "aries-sagittarius", "leo-sagittarius",
+  "taurus-virgo", "taurus-capricorn", "virgo-capricorn",
+  "gemini-libra", "gemini-aquarius", "libra-aquarius",
+  "cancer-scorpio", "cancer-pisces", "scorpio-pisces",
+  "aries-libra", "taurus-scorpio", "gemini-sagittarius",
+  "cancer-capricorn", "leo-aquarius", "virgo-pisces",
+]);
+
+function pairKey(a: string, b: string): string {
+  return [a, b].sort().join("-");
+}
+
+export function zodiacCompatibility(a: ZodiacSign, b: ZodiacSign): { score: number; verdict: string; text: string } {
+  let score = ELEMENT_PAIR_SCORE[`${a.element}-${b.element}`] ?? 6;
+  if (a.key === b.key) score = 7;
+  if (STRONG_PAIRS.has(pairKey(a.key, b.key))) score = Math.max(score, 9);
+
+  const verdict =
+    score >= 9 ? "вспышка" :
+    score >= 7 ? "комфорт" :
+    score >= 5 ? "работать можно" : "трение";
+
+  const text =
+    score >= 9
+      ? `${a.ru} и ${b.ru} — звёзды этому союзу аплодируют. Огонь, страсть, лёгкость на дистанции. Не упустите момент.`
+    : score >= 7
+      ? `${a.ru} и ${b.ru} ладят без боя. Один даёт стабильность, другой — движение. Хороший вектор.`
+    : score >= 5
+      ? `${a.ru} и ${b.ru} — пара через диалог. Будут моменты, когда не сходитесь, но именно они растят обоих.`
+      : `${a.ru} и ${b.ru} — стихии тянут в разные стороны. Возможно, если оба зрелые. Иначе — быстро устанете.`;
+
+  return { score: Math.round(score * 10), verdict, text };
+}

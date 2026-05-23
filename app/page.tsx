@@ -1,40 +1,53 @@
-import { days, currentState } from "@/data/days";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
+import { Github, Sparkles, Heart, Wand2, Grid3x3, Moon, MessageCircle } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Github, ExternalLink, Sparkles } from "lucide-react";
+import { MarqueeTicker } from "@/components/marquee-ticker";
+import { ToolCard } from "@/components/tool-card";
+import { StarField } from "@/components/astro/star-field";
+import { lunarToday } from "@/lib/lunar";
+import { days } from "@/data/days";
 
 export default function Home() {
-  const state = currentState();
-  const totalDays = days.length;
+  const moon = lunarToday();
 
   return (
-    <main className="relative min-h-screen bg-grid">
-      {/* Top bar */}
-      <header className="border-b border-border/60 bg-background/70 backdrop-blur">
-        <div className="mx-auto max-w-6xl px-4 lg:px-6 h-14 flex items-center justify-between">
+    <main className="relative min-h-screen overflow-hidden bg-background">
+      {/* Cosmic background */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(139,92,246,0.18),transparent_55%),radial-gradient(ellipse_at_bottom_left,rgba(255,79,216,0.12),transparent_55%),radial-gradient(ellipse_at_bottom_right,rgba(34,211,238,0.09),transparent_55%)]" />
+        <StarField count={120} />
+      </div>
+
+      <MarqueeTicker />
+
+      {/* Header */}
+      <header className="relative border-b border-border/50 bg-background/40 backdrop-blur-sm">
+        <div className="mx-auto max-w-5xl px-4 lg:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <BrandMark className="size-5 text-foreground" />
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-sm font-medium tracking-tight">
-                unicorn vibecode spoon
-              </span>
-              <span className="text-[10px] text-muted-foreground/60 font-mono tabular-nums">
-                v0.1
-              </span>
-            </div>
+            <span className="text-sm font-medium tracking-tight">unicorn · астро</span>
+            <span className="text-[10px] text-muted-foreground/60 font-mono tabular-nums hidden sm:inline">
+              v0.1
+            </span>
           </div>
           <nav className="flex items-center gap-1">
+            <a
+              href="https://t.me/mkhamzanovv"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 h-8 rounded-lg text-xs text-uni-pink hover:bg-uni-pink/10 transition-colors"
+            >
+              автор → tg
+            </a>
             <a
               href="https://github.com/mkhamzanov/unicorn-vibecode-spoon"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-2.5 h-8 rounded-lg text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              aria-label="GitHub"
+              className="inline-flex items-center justify-center size-8 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             >
               <Github className="size-4" />
-              <span>repo</span>
             </a>
             <ThemeToggle />
           </nav>
@@ -42,169 +55,134 @@ export default function Home() {
       </header>
 
       {/* Hero */}
-      <section className="mx-auto max-w-6xl px-4 lg:px-6 pt-16 pb-20 lg:pt-24 lg:pb-28">
-        <div className="flex flex-col items-center text-center gap-6">
-          <Badge
-            variant="pink-subtle"
-            className="h-6 px-3 text-[11px] tracking-wider uppercase"
-          >
-            День {state.dayN} · Spoon Driven Development
-          </Badge>
-
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-medium leading-[0.95] tracking-tight">
-            <span className="block">вайбкодим единорога</span>
-            <span className="block text-unicorn">ложкой.</span>
-          </h1>
-
-          <p className="max-w-xl text-sm sm:text-base text-muted-foreground">
-            1 подписчик = 1 слово в промпте. Код полностью открыт. Каждый день — новая фича,
-            ровно настолько, насколько хватает слов.
-          </p>
-
-          {/* The counter */}
-          <div className="mt-10 w-full max-w-xl">
-            <div className="rounded-2xl border-unicorn glow-unicorn p-8 sm:p-10 bg-card">
-              <div className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-muted-foreground/70 mb-3">
-                Бюджет слов на следующий промпт
-              </div>
-              <div className="text-7xl sm:text-8xl lg:text-9xl font-semibold tracking-tight tabular-nums leading-none">
-                {state.followers.toLocaleString("ru-RU")}
-              </div>
-              <div className="mt-3 text-xs sm:text-sm text-muted-foreground">
-                подписчиков · столько слов разрешено в промпте Клоду
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Today's prompt */}
-      <section className="mx-auto max-w-6xl px-4 lg:px-6 pb-16">
-        <div className="flex items-baseline justify-between mb-3">
-          <h2 className="text-sm uppercase tracking-[0.18em] text-muted-foreground/80">
-            Промпт {state.dayN > 0 ? `дня ${state.dayN}` : "дня"}
-          </h2>
-          {state.todayPrompt && (
-            <span className="text-[11px] text-muted-foreground/60 tabular-nums">
-              {state.todayPrompt.trim().split(/\s+/).length} слов
-            </span>
-          )}
-        </div>
-
-        <Card className="border-unicorn">
-          <CardContent className="py-6 sm:py-8">
-            {state.todayPrompt ? (
-              <p className="prompt-block text-lg sm:text-2xl lg:text-3xl text-foreground/95 cursor-blink">
-                {state.todayPrompt}
-              </p>
-            ) : (
-              <p className="prompt-block text-base sm:text-xl text-muted-foreground/70">
-                ждем первого подписчика · промпт пока пустой
-                <span className="cursor-blink" />
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        {state.todayBuilt && (
-          <p className="mt-3 text-sm text-muted-foreground">
-            <span className="text-foreground/80">Собрано:</span> {state.todayBuilt}
-          </p>
-        )}
-      </section>
-
-      <Separator className="opacity-50" />
-
-      {/* Timeline */}
-      <section className="mx-auto max-w-6xl px-4 lg:px-6 py-16">
-        <div className="flex items-baseline justify-between mb-6">
-          <h2 className="text-sm uppercase tracking-[0.18em] text-muted-foreground/80">
-            Лог дней
-          </h2>
-          <span className="text-[11px] text-muted-foreground/60 tabular-nums">
-            {totalDays} {totalDays === 1 ? "день" : "дней"}
+      <section className="relative mx-auto max-w-5xl px-4 lg:px-6 pt-12 sm:pt-16 lg:pt-20 pb-12">
+        <div className="flex flex-col items-center text-center gap-5">
+          <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.25em] text-muted-foreground/70">
+            <Sparkles className="size-3" /> астро · нумерология · таро
           </span>
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-medium leading-[0.95] tracking-tight max-w-3xl">
+            <span className="block">твой персональный</span>
+            <span className="block text-unicorn">астролог в кармане</span>
+          </h1>
+          <p className="max-w-xl text-sm sm:text-base text-muted-foreground">
+            гороскоп, совместимость, расклад Таро, матрица судьбы и лунный день. без регистрации, бесплатно, можно ткнуть прямо сейчас.
+          </p>
+
+          {/* Today hook */}
+          <Link
+            href="/moon"
+            className="mt-2 inline-flex items-center gap-3 px-4 py-2 rounded-full bg-card/80 backdrop-blur border border-border hover:border-foreground/40 transition-colors text-sm"
+          >
+            <span className="text-xl leading-none">{moon.glyph}</span>
+            <span className="text-muted-foreground">
+              сегодня <span className="text-foreground font-medium">{moon.day}-й лунный день</span>{" "}
+              <span className="text-muted-foreground/70">· {moon.phaseRu}</span>
+            </span>
+          </Link>
+        </div>
+      </section>
+
+      {/* Tools grid */}
+      <section className="relative mx-auto max-w-5xl px-4 lg:px-6 pb-16">
+        <div className="flex items-baseline justify-between mb-5">
+          <h2 className="text-sm uppercase tracking-[0.18em] text-muted-foreground/80">
+            инструменты
+          </h2>
+          <span className="text-[11px] text-muted-foreground/60">5 готово · больше в работе</span>
         </div>
 
-        {totalDays === 0 ? (
-          <div className="rounded-xl border border-dashed border-border/70 p-10 flex flex-col items-center text-center">
-            <Sparkles className="size-5 text-muted-foreground/60 mb-3" />
-            <p className="text-sm text-muted-foreground">
-              Лог пустой. Жди первый ролик — здесь появятся карточки дней.
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ToolCard
+            href="/astro"
+            title="Гороскоп на сегодня"
+            description="введи дату рождения — звёзды скажут что готовит этот день"
+            icon={Sparkles}
+            accent="pink"
+            cta="узнать знак"
+          />
+          <ToolCard
+            href="/compatibility"
+            title="Совместимость"
+            description="две даты — два знака — одно процентное число, по которому можно жить"
+            icon={Heart}
+            accent="violet"
+            cta="посчитать"
+          />
+          <ToolCard
+            href="/tarot"
+            title="Расклад Таро"
+            description="три карты, три времени. перемешать, тянуть, читать"
+            icon={Wand2}
+            accent="blue"
+            cta="тянуть карты"
+          />
+          <ToolCard
+            href="/matrix"
+            title="Матрица судьбы"
+            description="восемь энергий из даты рождения. карманная версия по Ладини"
+            icon={Grid3x3}
+            accent="cyan"
+            cta="рассчитать"
+          />
+          <ToolCard
+            href="/moon"
+            title="Лунный день"
+            description={`сейчас ${moon.day}-й лунный · ${moon.phaseRu} · что это значит сегодня`}
+            icon={Moon}
+            accent="mint"
+            cta="посмотреть"
+          />
+          <ToolCard
+            href="#chat"
+            title="Чат с астрологом"
+            description="живой бот ответит про знак, число, совместимость. кнопка снизу справа"
+            icon={MessageCircle}
+            accent="yellow"
+            cta="спросить"
+          />
+        </div>
+      </section>
+
+      {/* Challenge log */}
+      <section className="relative mx-auto max-w-5xl px-4 lg:px-6 pb-16">
+        <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
+              как это собирается
+            </div>
+            <p className="mt-2 text-sm sm:text-base text-foreground/90 max-w-xl">
+              Это шоу. 1 подписчик автора = 1 слово в промпте Клоду. Каждый день — новая фича, ровно на столько слов, сколько подписчиков. День {days.length || "0"}, продукт открыт целиком.
             </p>
           </div>
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[...days].reverse().map((d) => {
-              const words = d.prompt.trim().split(/\s+/).length;
-              return (
-                <Card key={d.n} className="hover:border-foreground/30 transition-colors">
-                  <CardContent className="flex flex-col gap-3">
-                    <div className="flex items-center justify-between">
-                      <Badge
-                        variant="purple-subtle"
-                        className="h-5 text-[10px] uppercase tracking-wider"
-                      >
-                        День {d.n}
-                      </Badge>
-                      <span className="text-[10px] text-muted-foreground/60 tabular-nums">
-                        {d.date}
-                      </span>
-                    </div>
-
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-semibold tabular-nums tracking-tight">
-                        {d.followers.toLocaleString("ru-RU")}
-                      </span>
-                      <span className="text-[11px] text-muted-foreground">
-                        подп · {words} слов
-                      </span>
-                    </div>
-
-                    <p className="prompt-block text-[11px] text-foreground/80 line-clamp-3">
-                      {d.prompt}
-                    </p>
-
-                    <p className="text-xs text-muted-foreground line-clamp-2">{d.built}</p>
-
-                    <div className="flex items-center justify-between pt-1 mt-auto">
-                      <div className="flex flex-wrap gap-1">
-                        {d.stack?.map((s) => (
-                          <span
-                            key={s}
-                            className="text-[10px] px-1.5 py-0.5 rounded bg-muted/60 text-muted-foreground"
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                      {d.href && (
-                        <a
-                          href={d.href}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          демка <ExternalLink className="size-3" />
-                        </a>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+          <div className="flex items-center gap-2">
+            <a
+              href="https://github.com/mkhamzanov/unicorn-vibecode-spoon"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 h-9 rounded-xl border border-border hover:border-foreground/40 transition-colors text-xs"
+            >
+              <Github className="size-3.5" /> репо
+            </a>
+            <a
+              href="https://t.me/mkhamzanovv"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 h-9 rounded-xl bg-uni-pink/15 text-uni-pink hover:bg-uni-pink/25 transition-colors text-xs"
+            >
+              автор → tg
+            </a>
           </div>
-        )}
+        </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/60 mt-10">
-        <div className="mx-auto max-w-6xl px-4 lg:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+      <footer className="relative border-t border-border/50 mt-4">
+        <div className="mx-auto max-w-5xl px-4 lg:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-muted-foreground">
           <div className="flex items-center gap-2">
-            <BrandMark className="size-4" />
-            <span>open-source · вайб + ложка + клод</span>
+            <BrandMark className="size-3.5" />
+            <span>open-source · астро + нумерология + таро + луна</span>
           </div>
-          <span className="tabular-nums">v0.1 · фундамент готов</span>
+          <span className="tabular-nums">v0.1 · день {days.length || 0}</span>
         </div>
       </footer>
     </main>

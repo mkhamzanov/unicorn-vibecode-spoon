@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { fontVariables } from "@/lib/fonts";
+import { ChatWidget } from "@/components/chat/chat-widget";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Unicorn Vibecode Spoon",
+  title: "Unicorn · астро-сервис, собранный ложкой",
   description:
-    "Вайбкодим единорога ложкой. 1 подписчик = 1 слово в промпте. Open-source.",
+    "AI-астрология и нумерология: гороскоп, совместимость, Таро, матрица судьбы, лунный день. Open-source, собирается публично по 1 слову в промпте за подписчика.",
 };
 
 // Inline-скрипт: применяем тему ДО гидрации, чтобы не было вспышки.
@@ -34,6 +35,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground font-igra-sans">
         {children}
+        <ChatWidget />
       </body>
     </html>
   );
