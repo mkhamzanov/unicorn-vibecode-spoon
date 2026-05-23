@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Shuffle, Check, Share2 } from "lucide-react";
+import { Shuffle } from "lucide-react";
 import { drawSpread, SPREAD_POSITIONS_3, type TarotCard } from "@/lib/tarot";
+import { ShareBar } from "@/components/ui/share-bar";
+import { AskAIButton } from "@/components/chat/ask-ai-button";
 
 type Phase = "idle" | "shuffling" | "revealed";
 
@@ -10,7 +12,9 @@ export function TarotSpread() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [cards, setCards] = useState<TarotCard[]>([]);
   const [flipped, setFlipped] = useState<boolean[]>([false, false, false]);
-  const [copied, setCopied] = useState(false);
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => { setOrigin(window.location.origin); }, []);
 
   function shuffleAndDraw() {
     setPhase("shuffling");
@@ -31,26 +35,6 @@ export function TarotSpread() {
       clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
     };
   }, [phase, cards]);
-
-  async function handleShare() {
-    if (!cards.length) return;
-    const list = cards
-      .map((c, i) => `${SPREAD_POSITIONS_3[i].title}: ${c.nameRu}`)
-      .join(" · ");
-    const url = window.location.origin + "/tarot";
-    const text = `Мой расклад: ${list}. Сделай свой → ${url}`;
-    if (typeof navigator !== "undefined" && "share" in navigator) {
-      try {
-        await navigator.share({ title: "Расклад Таро", text, url });
-        return;
-      } catch {}
-    }
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2200);
-    } catch {}
-  }
 
   return (
     <div className="space-y-8">
@@ -115,18 +99,21 @@ export function TarotSpread() {
             </div>
           ))}
 
-          <div className="pt-4 border-t border-border/40 flex items-center justify-between gap-3">
-            <span className="text-[11px] text-muted-foreground">
-              {copied ? "скопировано" : "сохрани или перешли"}
-            </span>
-            <button
-              type="button"
-              onClick={handleShare}
-              className="h-10 px-4 rounded-xl border border-border hover:border-foreground/50 transition-colors text-xs inline-flex items-center gap-2"
-            >
-              {copied ? <Check className="size-3.5" /> : <Share2 className="size-3.5" />}
-              {copied ? "скопировано" : "поделиться"}
-            </button>
+          <div className="pt-4 border-t border-border/40 space-y-4">
+            <AskAIButton
+              persona="astrologer"
+              label="спросить астролога что это значит"
+              context={`Мой расклад Таро (3 карты, прошлое/настоящее/будущее): ${cards.map((c, i) => `${SPREAD_POSITIONS_3[i].title} — ${c.nameRu}`).join("; ")}. Помоги связать карты в один сюжет и подскажи что с этим делать.`}
+              className="w-full justify-center"
+            />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="text-[11px] text-muted-foreground">сохрани или перешли</span>
+              <ShareBar
+                title="Расклад Таро"
+                text={`Мой расклад: ${cards.map((c, i) => `${SPREAD_POSITIONS_3[i].title}: ${c.nameRu}`).join(" · ")}`}
+                url={`${origin}/tarot`}
+              />
+            </div>
           </div>
         </div>
       )}

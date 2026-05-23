@@ -2,9 +2,12 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Check, Share2, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { ELEMENT_RU, getSignByKey, getZodiac, type ZodiacSign } from "@/lib/zodiac";
 import horoscopesJson from "@/data/horoscopes.json";
+import { DateField } from "@/components/ui/date-field";
+import { ShareBar } from "@/components/ui/share-bar";
+import { AskAIButton } from "@/components/chat/ask-ai-button";
 
 const horoscopes = horoscopesJson as Record<string, string>;
 
@@ -14,8 +17,8 @@ function BirthdayFormInner() {
   const params = useSearchParams();
   const [date, setDate] = useState("");
   const [result, setResult] = useState<Result | null>(null);
-  const [copied, setCopied] = useState(false);
   const [today, setToday] = useState("");
+  const [origin, setOrigin] = useState("");
 
   useEffect(() => {
     setToday(
@@ -25,6 +28,7 @@ function BirthdayFormInner() {
         month: "long",
       })
     );
+    setOrigin(window.location.origin);
   }, []);
 
   useEffect(() => {
@@ -47,31 +51,6 @@ function BirthdayFormInner() {
     }
   }
 
-  async function handleShare() {
-    if (!result) return;
-    const url = `${window.location.origin}/astro?sign=${result.sign.key}`;
-    const shareData = {
-      title: `Гороскоп · ${result.sign.ru}`,
-      text: result.text,
-      url,
-    };
-    if (typeof navigator !== "undefined" && "share" in navigator) {
-      try {
-        await navigator.share(shareData);
-        return;
-      } catch {
-        // fall through to clipboard
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2200);
-    } catch {
-      // ignore
-    }
-  }
-
   const maxDate = new Date().toISOString().slice(0, 10);
 
   return (
@@ -87,19 +66,20 @@ function BirthdayFormInner() {
           дата рождения
         </label>
         <div className="flex flex-col sm:flex-row gap-3">
-          <input
-            id="dob"
-            type="date"
-            required
-            min="1900-01-01"
-            max={maxDate}
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="flex-1 h-12 px-4 rounded-xl bg-background/70 border border-border focus:border-foreground/50 focus:outline-none text-base tabular-nums"
-          />
+          <div className="flex-1">
+            <DateField
+              id="dob"
+              value={date}
+              onChange={setDate}
+              min="1900-01-01"
+              max={maxDate}
+              placeholder="например, 15 марта 1995"
+            />
+          </div>
           <button
             type="submit"
-            className="h-12 px-6 rounded-xl bg-foreground text-background font-medium text-sm hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2"
+            disabled={!date}
+            className="h-12 px-6 rounded-xl bg-foreground text-background font-medium text-sm hover:opacity-90 disabled:opacity-50 transition-opacity inline-flex items-center justify-center gap-2"
           >
             <Sparkles className="size-4" />
             узнать знак
@@ -147,18 +127,16 @@ function BirthdayFormInner() {
             </p>
           </div>
 
-          <div className="mt-6 pt-6 border-t border-border/40 flex items-center justify-between gap-3">
-            <span className="text-[11px] text-muted-foreground">
-              {copied ? "ссылка скопирована" : "поделись с тем, кому актуально"}
-            </span>
-            <button
-              type="button"
-              onClick={handleShare}
-              className="h-10 px-4 rounded-xl border border-border hover:border-foreground/50 transition-colors text-xs inline-flex items-center gap-2"
-            >
-              {copied ? <Check className="size-3.5" /> : <Share2 className="size-3.5" />}
-              {copied ? "скопировано" : "поделиться"}
-            </button>
+          <div className="mt-6 pt-6 border-t border-border/40 flex flex-wrap items-center justify-between gap-3">
+            <AskAIButton
+              persona="astrologer"
+              context={`Мой знак — ${result.sign.ru} (${result.sign.symbol}). Сегодня в гороскопе: «${result.text}». Что мне с этим практически сделать сегодня?`}
+            />
+            <ShareBar
+              title={`Гороскоп · ${result.sign.ru}`}
+              text={`Мой знак ${result.sign.ru} ${result.sign.symbol}. На сегодня: ${result.text}`}
+              url={`${origin}/astro?sign=${result.sign.key}`}
+            />
           </div>
         </div>
       )}

@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { Heart, Share2, Check } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Heart } from "lucide-react";
 import { getZodiac, zodiacCompatibility } from "@/lib/zodiac";
 import { lifePathNumber, numerologyCompatibility } from "@/lib/numerology";
+import { DateField } from "@/components/ui/date-field";
+import { ShareBar } from "@/components/ui/share-bar";
+import { AskAIButton } from "@/components/chat/ask-ai-button";
 
 type Person = { name: string; date: string };
 
@@ -22,7 +25,11 @@ export function CompatibilityForm() {
   const [a, setA] = useState<Person>({ name: "", date: "" });
   const [b, setB] = useState<Person>({ name: "", date: "" });
   const [result, setResult] = useState<Result | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   const max = new Date().toISOString().slice(0, 10);
 
@@ -53,39 +60,23 @@ export function CompatibilityForm() {
     }, 60);
   }
 
-  async function handleShare() {
-    if (!result) return;
-    const url = window.location.origin + "/compatibility";
-    const text = `${result.names.a} (${result.sign1.ru}) + ${result.names.b} (${result.sign2.ru}) = ${result.totalScore}% совместимости. Узнай свой расклад → ${url}`;
-    if (typeof navigator !== "undefined" && "share" in navigator) {
-      try {
-        await navigator.share({ title: "Совместимость", text, url });
-        return;
-      } catch {}
-    }
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2200);
-    } catch {}
-  }
-
   return (
     <div className="space-y-6">
       <form
         onSubmit={handleSubmit}
         className="rounded-2xl border-unicorn glow-unicorn bg-card/85 backdrop-blur p-6 sm:p-8 space-y-5"
       >
-        <PersonInputs label="он · она · первый" value={a} onChange={setA} max={max} />
+        <PersonInputs label="он · она · первый" value={a} onChange={setA} max={max} idPrefix="a" />
         <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.25em] text-muted-foreground/60">
           <span className="flex-1 h-px bg-border" />
           <Heart className="size-3.5 text-uni-pink" />
           <span className="flex-1 h-px bg-border" />
         </div>
-        <PersonInputs label="он · она · второй" value={b} onChange={setB} max={max} />
+        <PersonInputs label="он · она · второй" value={b} onChange={setB} max={max} idPrefix="b" />
         <button
           type="submit"
-          className="w-full h-12 rounded-xl bg-foreground text-background font-medium text-sm hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2"
+          disabled={!a.date || !b.date}
+          className="w-full h-12 rounded-xl bg-foreground text-background font-medium text-sm hover:opacity-90 disabled:opacity-50 transition-opacity inline-flex items-center justify-center gap-2"
         >
           <Heart className="size-4" />
           посчитать совместимость
@@ -109,18 +100,23 @@ export function CompatibilityForm() {
             <Block title={`по числам жизненного пути · ${result.numerology.score}%`} text={result.numerology.text} />
           </div>
 
-          <div className="mt-8 pt-6 border-t border-border/40 flex items-center justify-between gap-3">
-            <span className="text-[11px] text-muted-foreground">
-              {copied ? "скопировано в буфер" : "перешли тому, кому актуально"}
-            </span>
-            <button
-              type="button"
-              onClick={handleShare}
-              className="h-10 px-4 rounded-xl border border-border hover:border-foreground/50 transition-colors text-xs inline-flex items-center gap-2"
-            >
-              {copied ? <Check className="size-3.5" /> : <Share2 className="size-3.5" />}
-              {copied ? "скопировано" : "поделиться"}
-            </button>
+          <div className="mt-8 pt-6 border-t border-border/40 space-y-4">
+            <AskAIButton
+              persona="astrologer"
+              label="спросить астролога подробнее"
+              context={`Наша совместимость: ${result.names.a} (${result.sign1.ru}) и ${result.names.b} (${result.sign2.ru}). Общий балл ${result.totalScore}%, вердикт «${result.zodiac.verdict}». По знакам ${result.zodiac.score}%, по числам ${result.numerology.score}% (${result.lp1} и ${result.lp2}). Расскажи подробнее: на чём строить, на чём беречь, что обходить.`}
+              className="w-full justify-center sm:w-auto"
+            />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="text-[11px] text-muted-foreground">
+                поделись результатом
+              </span>
+              <ShareBar
+                title="Совместимость"
+                text={`${result.names.a} (${result.sign1.ru}) + ${result.names.b} (${result.sign2.ru}) = ${result.totalScore}%. Вердикт: ${result.zodiac.verdict}.`}
+                url={`${origin}/compatibility`}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -133,11 +129,13 @@ function PersonInputs({
   value,
   onChange,
   max,
+  idPrefix,
 }: {
   label: string;
   value: Person;
   onChange: (p: Person) => void;
   max: string;
+  idPrefix: string;
 }) {
   return (
     <div className="space-y-3">
@@ -151,14 +149,13 @@ function PersonInputs({
           maxLength={40}
           className="h-12 px-4 rounded-xl bg-background/70 border border-border focus:border-foreground/50 focus:outline-none text-sm"
         />
-        <input
-          type="date"
-          required
+        <DateField
+          id={`${idPrefix}-date`}
+          value={value.date}
+          onChange={(d) => onChange({ ...value, date: d })}
           min="1900-01-01"
           max={max}
-          value={value.date}
-          onChange={(e) => onChange({ ...value, date: e.target.value })}
-          className="h-12 px-4 rounded-xl bg-background/70 border border-border focus:border-foreground/50 focus:outline-none text-sm tabular-nums"
+          placeholder="дата рождения"
         />
       </div>
     </div>

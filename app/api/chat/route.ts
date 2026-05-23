@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SYSTEM_PROMPT } from "@/lib/chat/system-prompt";
+import { getPersona } from "@/lib/chat/personas";
 
 export const runtime = "edge";
 
@@ -24,13 +24,14 @@ function checkRate(ip: string): { ok: boolean; retryAfter: number } {
 }
 
 export async function POST(req: NextRequest) {
-  let body: { messages?: Message[] };
+  let body: { messages?: Message[]; persona?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "bad_json" }, { status: 400 });
   }
 
+  const persona = getPersona(body.persona);
   const incoming = Array.isArray(body.messages) ? body.messages : [];
   if (incoming.length === 0) {
     return NextResponse.json({ error: "no_messages" }, { status: 400 });
@@ -87,10 +88,10 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: "deepseek-chat",
-        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...safe],
-        temperature: 1.3,
+        messages: [{ role: "system", content: persona.systemPrompt }, ...safe],
+        temperature: persona.key === "psychologist" ? 0.9 : 1.3,
         top_p: 0.95,
-        max_tokens: 500,
+        max_tokens: persona.key === "psychologist" ? 700 : 500,
         stream: false,
       }),
       signal: controller.signal,

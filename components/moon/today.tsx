@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Share2, Check } from "lucide-react";
 import { lunarToday, LUNAR_DAY_MEANING } from "@/lib/lunar";
+import { ShareBar } from "@/components/ui/share-bar";
+import { AskAIButton } from "@/components/chat/ask-ai-button";
 
 export function MoonToday() {
   const [data, setData] = useState<ReturnType<typeof lunarToday> | null>(null);
-  const [copied, setCopied] = useState(false);
   const [dateStr, setDateStr] = useState("");
+  const [origin, setOrigin] = useState("");
 
   useEffect(() => {
     const now = new Date();
@@ -15,24 +16,8 @@ export function MoonToday() {
     setDateStr(
       now.toLocaleDateString("ru-RU", { day: "numeric", month: "long", weekday: "long" })
     );
+    setOrigin(window.location.origin);
   }, []);
-
-  async function handleShare() {
-    if (!data) return;
-    const url = window.location.origin + "/moon";
-    const text = `Сегодня ${data.day}-й лунный день, ${data.phaseRu} ${data.glyph}, освещённость ${data.illumination}%. ${LUNAR_DAY_MEANING[data.day] ?? ""}`;
-    if (typeof navigator !== "undefined" && "share" in navigator) {
-      try {
-        await navigator.share({ title: "Лунный день", text, url });
-        return;
-      } catch {}
-    }
-    try {
-      await navigator.clipboard.writeText(`${text}\n${url}`);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2200);
-    } catch {}
-  }
 
   if (!data) {
     return (
@@ -75,18 +60,21 @@ export function MoonToday() {
         </div>
         <p className="text-base sm:text-lg leading-relaxed text-foreground/95">{meaning}</p>
 
-        <div className="mt-6 pt-6 border-t border-border/40 flex items-center justify-between gap-3">
-          <span className="text-[11px] text-muted-foreground">
-            {copied ? "скопировано" : "сохрани или перешли"}
-          </span>
-          <button
-            type="button"
-            onClick={handleShare}
-            className="h-10 px-4 rounded-xl border border-border hover:border-foreground/50 transition-colors text-xs inline-flex items-center gap-2"
-          >
-            {copied ? <Check className="size-3.5" /> : <Share2 className="size-3.5" />}
-            {copied ? "скопировано" : "поделиться"}
-          </button>
+        <div className="mt-6 pt-6 border-t border-border/40 space-y-4">
+          <AskAIButton
+            persona="astrologer"
+            label="спросить астролога про этот лунный день"
+            context={`Сегодня ${data.day}-й лунный день, фаза ${data.phaseRu}, освещённость ${data.illumination}%. Краткое значение: «${meaning}». Что мне это даёт практически — на работу, на отношения, на тело?`}
+            className="w-full justify-center"
+          />
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span className="text-[11px] text-muted-foreground">сохрани или перешли</span>
+            <ShareBar
+              title="Лунный день"
+              text={`Сегодня ${data.day}-й лунный, ${data.phaseRu} ${data.glyph}. ${meaning}`}
+              url={`${origin}/moon`}
+            />
+          </div>
         </div>
       </div>
     </div>

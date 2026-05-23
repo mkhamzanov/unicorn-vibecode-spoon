@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { Sparkles, Share2, Check } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Sparkles } from "lucide-react";
 import { calculateMatrix, type MatrixCell } from "@/lib/destiny-matrix";
+import { DateField } from "@/components/ui/date-field";
+import { ShareBar } from "@/components/ui/share-bar";
+import { AskAIButton } from "@/components/chat/ask-ai-button";
 
 export function MatrixForm() {
   const [date, setDate] = useState("");
   const [result, setResult] = useState<ReturnType<typeof calculateMatrix> | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => { setOrigin(window.location.origin); }, []);
 
   const max = new Date().toISOString().slice(0, 10);
 
@@ -21,24 +26,6 @@ export function MatrixForm() {
     }, 60);
   }
 
-  async function handleShare() {
-    if (!result) return;
-    const summary = result.cells.slice(0, 5).map((c) => `${c.label}: ${c.value} ${c.arcanaName}`).join(" · ");
-    const url = window.location.origin + "/matrix";
-    const text = `Моя матрица судьбы: ${summary}. Посчитай свою → ${url}`;
-    if (typeof navigator !== "undefined" && "share" in navigator) {
-      try {
-        await navigator.share({ title: "Матрица судьбы", text, url });
-        return;
-      } catch {}
-    }
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2200);
-    } catch {}
-  }
-
   return (
     <div className="space-y-6">
       <form
@@ -49,19 +36,20 @@ export function MatrixForm() {
           дата рождения
         </label>
         <div className="flex flex-col sm:flex-row gap-3">
-          <input
-            id="dob-matrix"
-            type="date"
-            required
-            min="1900-01-01"
-            max={max}
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="flex-1 h-12 px-4 rounded-xl bg-background/70 border border-border focus:border-foreground/50 focus:outline-none text-base tabular-nums"
-          />
+          <div className="flex-1">
+            <DateField
+              id="dob-matrix"
+              value={date}
+              onChange={setDate}
+              min="1900-01-01"
+              max={max}
+              placeholder="выбери дату рождения"
+            />
+          </div>
           <button
             type="submit"
-            className="h-12 px-6 rounded-xl bg-foreground text-background font-medium text-sm hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2"
+            disabled={!date}
+            className="h-12 px-6 rounded-xl bg-foreground text-background font-medium text-sm hover:opacity-90 disabled:opacity-50 transition-opacity inline-flex items-center justify-center gap-2"
           >
             <Sparkles className="size-4" />
             рассчитать матрицу
@@ -85,18 +73,29 @@ export function MatrixForm() {
             ))}
           </div>
 
-          <div className="mt-8 pt-6 border-t border-border/40 flex items-center justify-between gap-3">
-            <span className="text-[11px] text-muted-foreground">
-              {copied ? "скопировано" : "поделись с тем, кому интересно"}
-            </span>
-            <button
-              type="button"
-              onClick={handleShare}
-              className="h-10 px-4 rounded-xl border border-border hover:border-foreground/50 transition-colors text-xs inline-flex items-center gap-2"
-            >
-              {copied ? <Check className="size-3.5" /> : <Share2 className="size-3.5" />}
-              {copied ? "скопировано" : "поделиться"}
-            </button>
+          <div className="mt-8 pt-6 border-t border-border/40 space-y-4">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <AskAIButton
+                persona="astrologer"
+                label="разобрать с астрологом"
+                context={`Моя матрица судьбы: ${result.cells.map((c) => `${c.label} — ${c.value} (${c.arcanaName})`).join("; ")}. Что это значит на бытовом уровне? На что мне опереться, чего избегать?`}
+                className="w-full sm:flex-1 justify-center"
+              />
+              <AskAIButton
+                persona="psychologist"
+                label="обсудить с психологом"
+                context={`Я только что посмотрел свою матрицу судьбы. Главные энергии: ${result.cells.slice(0, 5).map((c) => `${c.label} (${c.arcanaName})`).join(", ")}. Что-то в этом откликается и что-то задевает. Помоги разложить.`}
+                className="w-full sm:flex-1 justify-center"
+              />
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="text-[11px] text-muted-foreground">поделись результатом</span>
+              <ShareBar
+                title="Матрица судьбы"
+                text={`Моя матрица: ${result.cells.slice(0, 5).map((c) => `${c.label} ${c.value} ${c.arcanaName}`).join(" · ")}`}
+                url={`${origin}/matrix`}
+              />
+            </div>
           </div>
         </div>
       )}

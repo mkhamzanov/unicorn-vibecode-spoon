@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Github, Sparkles, Heart, Wand2, Grid3x3, Moon, MessageCircle } from "lucide-react";
+import { Github, Sparkles, Heart, Wand2, Grid3x3, Moon, MessageCircle, HeartHandshake } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MarqueeTicker } from "@/components/marquee-ticker";
@@ -88,7 +88,7 @@ export default function Home() {
           <h2 className="text-sm uppercase tracking-[0.18em] text-muted-foreground/80">
             инструменты
           </h2>
-          <span className="text-[11px] text-muted-foreground/60">5 готово · больше в работе</span>
+          <span className="text-[11px] text-muted-foreground/60">7 готово · больше в работе</span>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -133,13 +133,25 @@ export default function Home() {
             cta="посмотреть"
           />
           <ToolCard
-            href="#chat"
-            title="Чат с астрологом"
-            description="живой бот ответит про знак, число, совместимость. кнопка снизу справа"
-            icon={MessageCircle}
+            href="/psychologist"
+            title="AI-психолог"
+            description="тёплый собеседник, который выслушает без оценки. не врач, но рядом"
+            icon={HeartHandshake}
             accent="yellow"
-            cta="спросить"
+            cta="поговорить"
           />
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-border/60 bg-card/60 backdrop-blur p-4 sm:p-5 flex items-start gap-3">
+          <div className="size-9 rounded-xl bg-gradient-to-br from-uni-pink to-uni-violet grid place-items-center shrink-0">
+            <MessageCircle className="size-4 text-background" />
+          </div>
+          <div className="flex-1">
+            <div className="text-sm font-medium">Звездочёт под рукой</div>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              На каждом экране кнопка «обсудить с AI». Плюс плавающий чат снизу справа — спроси про знак, число, расклад в любой момент.
+            </p>
+          </div>
         </div>
       </section>
 
