@@ -219,6 +219,57 @@
   word-spacing: 0.2em;
 }
 
+/* Звёздное мерцание — для /astro */
+@keyframes star-twinkle {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+.star-twinkle {
+  animation: star-twinkle 3s ease-in-out infinite;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.55);
+}
+
+/* Стихии знаков */
+.element-pill {
+  border: 1px solid transparent;
+}
+.element-fire {
+  background: color-mix(in oklab, var(--color-uni-pink) 14%, transparent);
+  color: var(--color-uni-pink);
+  border-color: color-mix(in oklab, var(--color-uni-pink) 30%, transparent);
+}
+.element-earth {
+  background: color-mix(in oklab, var(--color-uni-mint) 14%, transparent);
+  color: var(--color-uni-mint);
+  border-color: color-mix(in oklab, var(--color-uni-mint) 30%, transparent);
+}
+.element-air {
+  background: color-mix(in oklab, var(--color-uni-cyan) 14%, transparent);
+  color: var(--color-uni-cyan);
+  border-color: color-mix(in oklab, var(--color-uni-cyan) 30%, transparent);
+}
+.element-water {
+  background: color-mix(in oklab, var(--color-uni-blue) 14%, transparent);
+  color: var(--color-uni-blue);
+  border-color: color-mix(in oklab, var(--color-uni-blue) 30%, transparent);
+}
+
+/* Date input на тёмной теме — иконка календаря видимая */
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.85);
+  cursor: pointer;
+  opacity: 0.7;
+}
+.dark input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
 /* Сетка-фон — едва видимые точки, адаптивно к теме */
 .bg-grid {
   background-image: radial-gradient(
