@@ -219,12 +219,19 @@
   word-spacing: 0.2em;
 }
 
-/* Сетка-фон "underground" — едва видимые точки */
+/* Сетка-фон — едва видимые точки, адаптивно к теме */
 .bg-grid {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(0, 0, 0, 0.07) 1px,
+    transparent 0
+  );
+  background-size: 24px 24px;
+}
+.dark .bg-grid {
   background-image: radial-gradient(
     circle at 1px 1px,
     rgba(255, 255, 255, 0.06) 1px,
     transparent 0
   );
-  background-size: 24px 24px;
 }

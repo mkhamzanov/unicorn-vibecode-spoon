@@ -2,7 +2,9 @@ import { days, currentState } from "@/data/days";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Github, ExternalLink } from "lucide-react";
+import { BrandMark } from "@/components/brand-mark";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Github, ExternalLink, Sparkles } from "lucide-react";
 
 export default function Home() {
   const state = currentState();
@@ -11,23 +13,30 @@ export default function Home() {
   return (
     <main className="relative min-h-screen bg-grid">
       {/* Top bar */}
-      <header className="border-b border-border/60">
+      <header className="border-b border-border/60 bg-background/70 backdrop-blur">
         <div className="mx-auto max-w-6xl px-4 lg:px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <span className="text-xl leading-none">🦄</span>
-            <span className="text-xl leading-none">🥄</span>
-            <span className="text-foreground/90">Уникорн Вайбкод Ложка</span>
+          <div className="flex items-center gap-2.5">
+            <BrandMark className="size-5 text-foreground" />
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-sm font-medium tracking-tight">
+                unicorn vibecode spoon
+              </span>
+              <span className="text-[10px] text-muted-foreground/60 font-mono tabular-nums">
+                v0.1
+              </span>
+            </div>
           </div>
-          <nav className="flex items-center gap-1 text-xs text-muted-foreground">
+          <nav className="flex items-center gap-1">
             <a
               href="https://github.com/mkhamzanov/unicorn-vibecode-spoon"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-2.5 h-8 rounded-lg hover:bg-muted hover:text-foreground transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 h-8 rounded-lg text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             >
               <Github className="size-4" />
               <span>repo</span>
             </a>
+            <ThemeToggle />
           </nav>
         </div>
       </header>
@@ -35,7 +44,10 @@ export default function Home() {
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-4 lg:px-6 pt-16 pb-20 lg:pt-24 lg:pb-28">
         <div className="flex flex-col items-center text-center gap-6">
-          <Badge variant="pink-subtle" className="h-6 px-3 text-[11px] tracking-wider uppercase">
+          <Badge
+            variant="pink-subtle"
+            className="h-6 px-3 text-[11px] tracking-wider uppercase"
+          >
             День {state.dayN} · Spoon Driven Development
           </Badge>
 
@@ -115,8 +127,8 @@ export default function Home() {
         </div>
 
         {totalDays === 0 ? (
-          <div className="rounded-xl border border-dashed border-border/70 p-10 text-center">
-            <p className="text-2xl mb-2">🥄</p>
+          <div className="rounded-xl border border-dashed border-border/70 p-10 flex flex-col items-center text-center">
+            <Sparkles className="size-5 text-muted-foreground/60 mb-3" />
             <p className="text-sm text-muted-foreground">
               Лог пустой. Жди первый ролик — здесь появятся карточки дней.
             </p>
@@ -129,7 +141,10 @@ export default function Home() {
                 <Card key={d.n} className="hover:border-foreground/30 transition-colors">
                   <CardContent className="flex flex-col gap-3">
                     <div className="flex items-center justify-between">
-                      <Badge variant="purple-subtle" className="h-5 text-[10px] uppercase tracking-wider">
+                      <Badge
+                        variant="purple-subtle"
+                        className="h-5 text-[10px] uppercase tracking-wider"
+                      >
                         День {d.n}
                       </Badge>
                       <span className="text-[10px] text-muted-foreground/60 tabular-nums">
@@ -141,7 +156,9 @@ export default function Home() {
                       <span className="text-3xl font-semibold tabular-nums tracking-tight">
                         {d.followers.toLocaleString("ru-RU")}
                       </span>
-                      <span className="text-[11px] text-muted-foreground">подп · {words} слов</span>
+                      <span className="text-[11px] text-muted-foreground">
+                        подп · {words} слов
+                      </span>
                     </div>
 
                     <p className="prompt-block text-[11px] text-foreground/80 line-clamp-3">
@@ -183,12 +200,11 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-border/60 mt-10">
         <div className="mx-auto max-w-6xl px-4 lg:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <span>
-            🦄🥄 open-source. вайб + ложка + клод.
-          </span>
-          <span className="tabular-nums">
-            v0.1 · фундамент готов
-          </span>
+          <div className="flex items-center gap-2">
+            <BrandMark className="size-4" />
+            <span>open-source · вайб + ложка + клод</span>
+          </div>
+          <span className="tabular-nums">v0.1 · фундамент готов</span>
         </div>
       </footer>
     </main>
